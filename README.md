@@ -191,7 +191,7 @@ module.exports = bookshelf;
 
   - [user.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/user.js)
 
-  -[userevents.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/userevents.js)
+  - [userevents.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/userevents.js)
 
 
 # Modules
@@ -248,7 +248,7 @@ module.exports = bookshelf;
 
   ### ADD SubCategory
 
-  - This module contains SelectField for selction of categories from dropdown and TextFields for subcategory.
+  - This module contains SelectField for selction of categories from dropdown and TextFields for subcategory and Add SubCategory button.
 
   - This module fetch all categories from database using api "http://localhost:3001/category". and store the data in menu option of select field.
 
@@ -263,7 +263,26 @@ const getCategory = (callback) => {
 }
 ```
 
-  - "/category" 
+  - This module add category using function "addSubCategory" which uses api "http://localhost:3001/subcategory/add".
+
+```
+  const addSubCategory = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:3001/subcategory/add", subCategory)
+      .then((res) => {
+        alert("Sub-Category has been added succesfully");
+        setCategoryName("");
+        setSubCategory({ ...subCategory, name: "" });
+      })
+      .catch((err) => {
+        alert(err);
+        console.log(err);
+      });
+  };
+```
+
+  - This module use "/category", "/subcategory/add" routes for request and response. 
 
 ```
 router.get("/", async (req, res) => {
@@ -288,28 +307,39 @@ router.get("/", async (req, res) => {
 
 ```
 
-  - This module add category using function "addSubCategory" which uses api "http://localhost:3001/subcategory/add".
-
 ```
-  const addSubCategory = (e) => {
-    e.preventDefault();
-    axios
-      .post("http://localhost:3001/subcategory/add", subCategory)
-      .then((res) => {
-        alert("Sub-Category has been added succesfully");
-        setCategoryName("");
-        setSubCategory({ ...subCategory, name: "" });
+router.post("/add", async (req, res) => {
+  try {
+    await new SubCategory(req.body)
+      .save()
+      .then((addSubCategory) => {
+        res.send(addSubCategory);
       })
       .catch((err) => {
-        alert(err);
         console.log(err);
       });
-  };
+  } catch (err) {
+    console.log(err);
+  }
+});
 ```
 
+  ### ADD Events
 
+  - This module contains an Category SelectField, SubCategory SelectField, Event (Title, Description, Image, start_date, end_date) field and Add Event Button.
 
+  - This module contain components for different fields.
 
+  - [CategorySelect](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/frontend/src/component/Admin/CategorySelect.js) component for category select field.
+
+    - This component only deals with fetching the category data from database using node and save that data in a state so it can be used for fetching speific subcategory.
+
+  - [SubCategorySelect](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/frontend/src/component/Admin/SubCategorySelect.js) component for sub-category select field.
+
+    - This component deals with fetching the data of specific sub-category according to selected category using the state in which selected category data is stored. This component uses SelectField in which mutliple data can be selected.Therefore this component stores the mutliple sub-category id's in a state as a set so on deselect data can be removed from state also and duplicate data will not stored.
+
+  - [EventDate](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/frontend/src/component/Admin/EventDate.js) component for dates fields.
+    - This component has Dtae field for start and end date. It stores the start date and end date in a Event object.
 
 
 
