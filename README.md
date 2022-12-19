@@ -2,7 +2,7 @@
 
 Event Tracking is a project which have frontend built in react and backend built in node-express. This project uses sql database with the use of `bookshelf` ORM.
 
-This project consist of two panels Admin and User. 
+This project consist of two modules Admin and User. 
 
 ## Installation
 
@@ -20,7 +20,7 @@ then go to frontend directory
 
 - run `npm i` or `npm install`
 
-- Now create your database by going to 'localhost/phpmyadmin'.
+## Now create your database by going to 'localhost/phpmyadmin'.
 
 - Create database named events.
 
@@ -44,8 +44,11 @@ then go to frontend directory
 | name | varchar(255) |
 
 PRIMARY KEY : id
+
 FOREIGN KEY : category_id   REFERENCES category table
+
 RELATION with category table (many-to-one)
+
 
 ### event table
 
@@ -60,7 +63,9 @@ RELATION with category table (many-to-one)
 |end_date | datetime |
 
 PRIMARY KEY : id
+
 FOREIGN KEY : category_id  REFERENCES category table
+
 RELATION with category table (many-to-one)
 
 
@@ -73,7 +78,9 @@ RELATION with category table (many-to-one)
 | subcategory_id | int |
 
 PRIMARY KEY : id
-FOREIGN KEY : event_id REFERENCES event table, subcategory_id REFERENCES subcategory table
+
+FOREIGN KEY : event_id REFERENCES event table, subcategory_id REFERENCES 
+subcategory table
 
 RELATION with event and subcategory table (many-to-one)
 
@@ -88,6 +95,7 @@ RELATION with event and subcategory table (many-to-one)
 
 PRIMARY KEY : id
 
+
 ### userevents table
 
 | name | Type | Extra
@@ -97,70 +105,38 @@ PRIMARY KEY : id
 |event_id | int |
 
 PRIMARY KEY : id
+
 FOREIGN KEY : user_id REFERENCES user table, event_id REFERENCES event table
+
 RELATION with user and event table (many-to-one)
 
+## Now connect your database to your application using bookshelf configuration.
 
-## Available Scripts
+```
+const knex = require("knex")({
+  debug: true,
+  client: "mysql",
+  connection: {
+    host: "localhost",
+    user: process.env.USERNAME,
+    password: process.env.PASSWORD,
+    database: "events",
+  },
+});
 
-In the project directory, you can run:
+const bookshelf = require('bookshelf')(knex);
 
-### `npm start`
+module.exports = bookshelf;
+```
+- Now application is ready to run
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Go to the backend folder in terminal and run `DEBUG=backend:* npm start`. It will start your backend server at `http://localhost:3001/`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Then go to frontend folder and run `npm start`. It will run your web application on server `http://localhost:3000/`.
 
-### `npm run build`
+- Now applicationis ready to use.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Modules
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
