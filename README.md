@@ -136,7 +136,41 @@ module.exports = bookshelf;
 
 - Now applicationis ready to use.
 
-## Modules
+# Database Model
+
+  - Model are used to run CRUD operations on database tables.
+
+  - category.js
+  ```
+    const bookshelf = require('./dbconfig');
+    const SubCategory = require('./subCategory');
+    const Event = require('./event')
+
+    const Category = bookshelf.model("Category",{
+        tableName : "category",
+        subcategory() {
+            return this.hasMany(SubCategory);
+        },
+        event() {
+            return this.hasMany(Event);
+        }
+    })
+
+    module.exports = Category;
+  ```
+
+  - Category is a model for the category table. In which I have define the relation with another table to perform relation queries.
+
+  - [event.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/event.js)
+# Modules
 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Admin Module
+
+  - This module consits three sub-module
+    - Add category
+    - Add Sub-Category
+    - Add Events
+
+  ### Add Category 
+  - In this module admin can add categories in database.
