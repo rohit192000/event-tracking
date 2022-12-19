@@ -161,9 +161,22 @@ module.exports = bookshelf;
 
   - Category is a model for the category table. In which I have define the relation with another table to perform relation queries.
 
-  - [event.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/event.js)
-# Modules
+  - tableName is the name of table whose model is created.
 
+  - functions define relations between different tables.
+
+  - [event.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/event.js)
+
+  - [subCategory.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/subCategory.js)
+
+  - [subevent.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/subevent.js)
+
+  - [user.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/user.js)
+
+  - [userevents.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/userevents.js)
+
+
+# Modules
 
 ## Admin Module
 
@@ -174,3 +187,43 @@ module.exports = bookshelf;
 
   ### Add Category 
   - In this module admin can add categories in database.
+
+  - It adds the category data in databse by using api "http://localhost:3001/category/add".
+
+  - This module contain function addCategory() which send the request to the node server.
+  ```
+    const addCategory = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:3001/category/add", category)
+      .then((response) => {
+        setCategory({ ...category, name: "" });
+        alert("category has been added successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("Category with same name existed");
+        setCategory({ ...category, name: "" });
+      });
+    };
+  ```
+
+  - This module use "/category/add" route for request and response .
+  
+  ```
+    router.post("/add", async (req, res) => {
+      try {
+        await new Category(req.body)
+          .save()
+          .then((category) => {
+            res.send(category);
+          })
+          .catch((err) => {
+            res.status(400).send("Category existed");
+            console.log(err);
+          });
+      } catch (err) {
+        console.log(err);
+      }
+    });
+  ```
