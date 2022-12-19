@@ -175,6 +175,24 @@ module.exports = bookshelf;
 
   - [userevents.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/model/userevents.js)
 
+# Routes
+
+  - I have defined all routes for the api's in the backend/routes folder.
+
+  - I have used express router to define routes and call them in app.js in backend folder.
+
+  - [category.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/category.js)
+
+  - [event.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/event.js)
+
+  - [subCategory.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/subCategory.js)
+
+  - [subevent.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/subevent.js)
+
+  - [user.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/user.js)
+
+  -[userevents.js](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/backend/routes/userevents.js)
+
 
 # Modules
 
@@ -185,7 +203,7 @@ module.exports = bookshelf;
     - Add Sub-Category
     - Add Events
 
-  ### Add Category 
+  ### ADD Category 
   - In this module admin can add categories in database.
 
   - It adds the category data in databse by using api "http://localhost:3001/category/add".
@@ -208,7 +226,7 @@ module.exports = bookshelf;
     };
   ```
 
-  - This module use "/category/add" route for request and response .
+  - This module use "/category/add" route for request and response. 
   
   ```
     router.post("/add", async (req, res) => {
@@ -227,3 +245,80 @@ module.exports = bookshelf;
       }
     });
   ```
+
+  ### ADD SubCategory
+
+  - This module contains SelectField for selction of categories from dropdown and TextFields for subcategory.
+
+  - This module fetch all categories from database using api "http://localhost:3001/category". and store the data in menu option of select field.
+
+```
+const getCategory = (callback) => {
+        axios.get("http://localhost:3001/category").then((response) => {
+          console.log(response.data);
+          callback(response.data);
+        }).catch(err => {
+          console.log(err)
+        });
+}
+```
+
+  - "/category" 
+
+```
+router.get("/", async (req, res) => {
+  try {
+    await new Category()
+      .fetchAll()
+      .then((category) => {
+        if (category.length === 0) {
+          res.send("Category not found");
+        } else {
+          res.send(category.toJSON());
+        }
+      })
+      .catch((err) => {
+        res.status(404);
+        console.log("Database module error", err);
+      });
+  } catch (err) {
+    console.log("Error caught by try catch : ", err);
+  }
+});
+
+```
+
+  - This module add category using function "addSubCategory" which uses api "http://localhost:3001/subcategory/add".
+
+```
+  const addSubCategory = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:3001/subcategory/add", subCategory)
+      .then((res) => {
+        alert("Sub-Category has been added succesfully");
+        setCategoryName("");
+        setSubCategory({ ...subCategory, name: "" });
+      })
+      .catch((err) => {
+        alert(err);
+        console.log(err);
+      });
+  };
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
