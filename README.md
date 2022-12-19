@@ -1,14 +1,37 @@
 # EVENT TRACKING
 
-Event Tracking is a project which have frontend built in react and backend built in node-express.
+Event Tracking is a project which have frontend built in react and backend built in node-express. This project uses sql database with the use of `bookshelf` ORM.
 
 This project consist of two panels Admin and User. 
 
 ## Installation
 
-Clone this repository using
-- git clone https://gitlab.com/rohitsamal.mvteams/frontend.git
+Clone this repository by running below command in terminal
+- `git clone https://gitlab.com/rohitsamal.mvteams/frontend.git`
 
+then go to frontend directory
+- `cd event-tracking/frontend`
+
+- run `npm i` or `npm install`. It will install all dependencies.
+
+- now move out of the directory and go to the backend directory
+
+- `cd ../backend`
+
+- run `npm i` or `npm install`
+
+- Now create your database by going to 'localhost/phpmyadmin'.
+
+- Create database named events.
+
+- Create tables :- category, event, subcategory, subevents, userevents, users.
+
+## Database Structure
+
+### category tables
+
+| name | Type | Extra |
+| id | int | AUTO_INCREMENT |
 
 ## Available Scripts
 
