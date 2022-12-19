@@ -1,6 +1,11 @@
-# Getting Started with Create React App
+# EVENT TRACKING
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Event Tracking is a project which have frontend built in react and backend built in node-express.
+
+This project consist of two panels Admin and User. 
+
+##Installation
+
 
 ## Available Scripts
 
