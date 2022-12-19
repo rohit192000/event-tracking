@@ -43,28 +43,63 @@ then go to frontend directory
 | category_id |  int | 
 | name | varchar(255) |
 
+PRIMARY KEY : id
+FOREIGN KEY : category_id   REFERENCES category table
+RELATION with category table (many-to-one)
+
 ### event table
 
 | name | Type | Extra
 --- | --- | ---
+| id | int | AUTO_INCREMENT
+| category_id | int |
+| title | mediumtext | 
+| description | mediumtext | 
+| image | varchar(255) |
+| start_date | datetime |
+|end_date | datetime |
+
+PRIMARY KEY : id
+FOREIGN KEY : category_id  REFERENCES category table
+RELATION with category table (many-to-one)
 
 
 ### subevents table
 
 | name | Type | Extra
 --- | --- | ---
+| id | int | AUTO_INCREMENT
+| event_id | int |
+| subcategory_id | int |
 
+PRIMARY KEY : id
+FOREIGN KEY : event_id REFERENCES event table, subcategory_id REFERENCES subcategory table
 
-### userevents table
-
-| name | Type | Extra
---- | --- | ---
-
+RELATION with event and subcategory table (many-to-one)
 
 ### users table
 
 | name | Type | Extra
 --- | --- | ---
+| id | int | AUTO_INCREMENT
+| name | varchar(50) |
+| email | varchar(50) |
+| contact | varchar(50) |
+
+PRIMARY KEY : id
+
+### userevents table
+
+| name | Type | Extra
+--- | --- | ---
+| id | int | AUTO_INCREMENT
+| user_id | int |
+|event_id | int |
+
+PRIMARY KEY : id
+FOREIGN KEY : user_id REFERENCES user table, event_id REFERENCES event table
+RELATION with user and event table (many-to-one)
+
 
 ## Available Scripts
 
