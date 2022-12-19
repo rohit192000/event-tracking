@@ -30,8 +30,9 @@ then go to frontend directory
 
 ### category tables
 
-| name | Type | Extra |
-| id | int | AUTO_INCREMENT |
+| name | Type | Extra
+--- | --- | ---
+| id | int | AUTO_INCREMENT
 
 ## Available Scripts
 
