@@ -6,6 +6,8 @@ This project consist of two panels Admin and User.
 
 ## Installation
 
+Clone this repository using
+- git clone https://gitlab.com/rohitsamal.mvteams/frontend.git
 
 
 ## Available Scripts
