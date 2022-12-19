@@ -28,11 +28,43 @@ then go to frontend directory
 
 ## Database Structure
 
-### category tables
+### category table
 
 | name | Type | Extra
 --- | --- | ---
 | id | int | AUTO_INCREMENT
+| name | varchar(255) | 
+
+### subcategory table
+
+| name | Type | Extra
+--- | --- | ---
+| id | int | AUTO_INCREMENT
+| category_id |  int | 
+| name | varchar(255) |
+
+### event table
+
+| name | Type | Extra
+--- | --- | ---
+
+
+### subevents table
+
+| name | Type | Extra
+--- | --- | ---
+
+
+### userevents table
+
+| name | Type | Extra
+--- | --- | ---
+
+
+### users table
+
+| name | Type | Extra
+--- | --- | ---
 
 ## Available Scripts
 
