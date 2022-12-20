@@ -7,16 +7,21 @@ This project consist of two modules Admin and User.
 ## Installation
 
 Clone this repository by running below command in terminal
-- `git clone https://gitlab.com/rohitsamal.mvteams/frontend.git`
+```terminal
+$ git clone https://gitlab.com/rohitsamal.mvteams/frontend.git
+```
 
 then go to frontend directory
-- `cd event-tracking/frontend`
-
+```terminal
+$ cd event-tracking/frontend
+```
 - run `npm i` or `npm install`. It will install all dependencies.
 
 - now move out of the directory and go to the backend directory
 
-- `cd ../backend`
+```terminal
+$ cd ../backend
+```
 
 - run `npm i` or `npm install`
 
@@ -24,7 +29,183 @@ then go to frontend directory
 
 - Create database named events.
 
-- Create tables :- category, event, subcategory, subevents, userevents, users.
+## Knex Migration
+
+- Create tables :- category, event, subcategory, subevents, userevents, users using Knex Migration CLI.
+
+- You can use the migration I've created or delete those migrations. Delete knexfile.js and knex folder from backend.
+
+
+### Knex configurations
+
+- Install `knex@0.21.19` globally.
+```terminal
+$ npm i -g knex@0.21.19
+```
+
+- Check knex version using 
+```terminal
+$ knex --version
+```
+
+- Now move to backend folder.
+
+- Now run `knex init` to create `knexfile.js` which will use various configuration settings for module and migrations.
+
+```terminal
+$ knex init
+```
+
+- Your `knexfile.js` will be created in the current folder.
+```js
+// Update with your config settings.
+
+module.exports = {
+  development: {
+    client: "mysql",
+    connection: {
+      host: "localhost",
+      user: "root",
+      password: process.env.PASSWORD,
+      database: "event",
+    },
+    migrations: {
+      directory: __dirname + "/knex/migrations",
+    },
+  },
+
+  staging: {
+    client: "mysql",
+    connection: {
+      host: "localhost",
+      user: "root",
+      password: process.env.PASSWORD,
+      database: "event",
+    },
+    pool: {
+      min: 2,
+      max: 10,
+    },
+    migrations: {
+      directory: __dirname + "/knex/migrations",
+    },
+  },
+
+  production: {
+    client: "mysql",
+    connection: {
+      host: "localhost",
+      user: "root",
+      password: process.env.PASSWORD,
+      database: "event",
+    },
+    pool: {
+      min: 2,
+      max: 10,
+    },
+    migrations: {
+      directory: __dirname + "/knex/migrations",
+    },
+  },
+};
+
+```
+
+- In this file there is configuration define for three environments :- development, staging, and production.
+
+- We will use development environment only.
+
+- `development` key contains your configurations for database and migrations.
+
+- `client` is the database name you want to connect.
+
+- In `connection` define host, user, password and database name you've created in your `localhost/phpmyadmin`.
+
+- In `migrations` define your directory in which migration will store. 
+
+- `__dirname` it will store the `/knex/migrations` in current working directory. In our case it is `backend`.
+
+### Create Migrations
+
+- Run `knex migrate:make migration_name` to make your migration.
+```console
+$ knex migrate:make category
+```
+```console
+Using environment: development
+Using environment: development
+Using environment: development
+Created Migration: /var/www/html/git_folder/frontend/backend/knex/migrations/20221220122511_category.js
+``` 
+- It will automatically build your migration in the folder `backend/knex/migrations/migration_name`.
+
+- After that your directory structure will look like this.
+```
+backend
+├── app.js
+├── bin
+│   └── www
+├── knex
+│   └── migrations
+│       ├── 20221220122511_category.js
+
+```
+
+- Initially `20221220122511_category.js` file have only predefined template.
+
+```js
+
+exports.up = function(knex) {
+};
+
+exports.down = function(knex) {
+};
+
+```
+
+- Now we have to write queries to create tables.
+
+```js
+
+exports.up = function(knex) {
+  return knex.schema.createTable("category", function (table) {
+    table.increments("id").primary();
+
+    table.string("name", 50).notNullable();
+  })
+};
+
+exports.down = function(knex) {
+  return knex.schema.dropTableIfExists("category");
+};
+```
+
+- In `exports.up` you will return your query to create tables. Here I've created tableName `category` and in the function I've define
+the table structure.
+
+- `table.increments("id").primary()` will create table with column "id" which is primary key and AUTO_INCREMENT and "name" which is varchar(255).
+
+- In `exports.down` you will return the query to drop tables.
+
+- Now run `knex migrate:latest --env development` or `knex migrate:up migration_name` to run the migration which will create the table in database.
+
+```terminal
+$ knex migrate:latest --env development
+OR
+$ knex migrate:up 20221220122511_category.js
+```
+
+- `knex migrate:latest` will run the latest migration while `knex migrate:up` will run the migrations which haven't runs.
+
+- After that your table structure will look like this.
+
+| name | Type | Extra
+--- | --- | ---
+| id | int | AUTO_INCREMENT
+| name | varchar(255) | 
+
+- Now if you want to use my migrations just run `knex migrate:up` to run all the migrations. [migrations](https://gitlab.com/rohitsamal.mvteams/frontend/-/tree/main/backend/knex/migrations)
+
 
 ## Database Structure
 
