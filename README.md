@@ -299,21 +299,21 @@ RELATION with user and event table (many-to-one)
 
 ## Now connect your database to your application using bookshelf configuration.
 
-```
-const knex = require("knex")({
-  debug: true,
-  client: "mysql",
-  connection: {
-    host: "localhost",
-    user: process.env.USERNAME,
-    password: process.env.PASSWORD,
-    database: "events",
-  },
-});
-
-const bookshelf = require('bookshelf')(knex);
-
-module.exports = bookshelf;
+```js
+    const knex = require("knex")({
+      debug: true,
+      client: "mysql",
+      connection: {
+        host: "localhost",
+        user: process.env.USERNAME,
+        password: process.env.PASSWORD,
+        database: "events",
+      },
+    });
+    
+    const bookshelf = require('bookshelf')(knex);
+    
+    module.exports = bookshelf;
 ```
 - Now application is ready to run
 
@@ -328,7 +328,7 @@ module.exports = bookshelf;
   - Model are used to run CRUD operations on database tables.
 
   - category.js
-  ```
+  ```js
     const bookshelf = require('./dbconfig');
     const SubCategory = require('./subCategory');
     const Event = require('./event')
@@ -396,7 +396,8 @@ module.exports = bookshelf;
   - It adds the category data in databse by using api "http://localhost:3001/category/add".
 
   - This module contain function addCategory() which send the request to the node server.
-  ```
+
+  ```js
     const addCategory = (e) => {
     e.preventDefault();
     axios
@@ -415,7 +416,7 @@ module.exports = bookshelf;
 
   - This module use "/category/add" route for request and response. 
   
-  ```
+  ```js
     router.post("/add", async (req, res) => {
       try {
         await new Category(req.body)
@@ -439,20 +440,20 @@ module.exports = bookshelf;
 
   - This module fetch all categories from database using api "http://localhost:3001/category". and store the data in menu option of select field.
 
-```
-const getCategory = (callback) => {
-        axios.get("http://localhost:3001/category").then((response) => {
-          console.log(response.data);
-          callback(response.data);
-        }).catch(err => {
-          console.log(err)
-        });
-}
+```js
+    const getCategory = (callback) => {
+            axios.get("http://localhost:3001/category").then((response) => {
+              console.log(response.data);
+              callback(response.data);
+            }).catch(err => {
+              console.log(err)
+            });
+    }
 ```
 
   - This module add category using function "addSubCategory" which uses api "http://localhost:3001/subcategory/add".
 
-```
+```js
   const addSubCategory = (e) => {
     e.preventDefault();
     axios
@@ -472,43 +473,43 @@ const getCategory = (callback) => {
   - This module use "/category", "/subcategory/add" routes for request and response. 
 
 ```
-router.get("/", async (req, res) => {
-  try {
-    await new Category()
-      .fetchAll()
-      .then((category) => {
-        if (category.length === 0) {
-          res.send("Category not found");
-        } else {
-          res.send(category.toJSON());
-        }
-      })
-      .catch((err) => {
-        res.status(404);
-        console.log("Database module error", err);
-      });
-  } catch (err) {
-    console.log("Error caught by try catch : ", err);
-  }
-});
+    router.get("/", async (req, res) => {
+      try {
+        await new Category()
+          .fetchAll()
+          .then((category) => {
+            if (category.length === 0) {
+              res.send("Category not found");
+            } else {
+              res.send(category.toJSON());
+            }
+          })
+          .catch((err) => {
+            res.status(404);
+            console.log("Database module error", err);
+          });
+      } catch (err) {
+        console.log("Error caught by try catch : ", err);
+      }
+    });
 
 ```
 
-```
-router.post("/add", async (req, res) => {
-  try {
-    await new SubCategory(req.body)
-      .save()
-      .then((addSubCategory) => {
-        res.send(addSubCategory);
-      })
-      .catch((err) => {
+```js
+    router.post("/add", async (req, res) => {
+      try {
+        await new SubCategory(req.body)
+          .save()
+          .then((addSubCategory) => {
+            res.send(addSubCategory);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } catch (err) {
         console.log(err);
-      });
-  } catch (err) {
-    console.log(err);
-  }
-});
+      }
+    });
 ```
 
   ### ADD Events
@@ -685,6 +686,7 @@ router.post("/add", async (req, res) => {
   <summary>addEvent function</summary>
   <p>
 
+```js
     const addEvent = (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
@@ -721,13 +723,14 @@ router.post("/add", async (req, res) => {
         });
     });
     };
+```
   </p>
   </details>
 
     - This function gets the value of form data and store in the `data` Variable.
 
     - This function will check if the dates are correctly selected or not. Like event start date can't be lesser than today's date and can't be greater than event's end date.
-    ```js
+```js
         if (startvalue < new Date()) {
       alert("Please choose date greter than today's date");
     }
@@ -735,7 +738,7 @@ router.post("/add", async (req, res) => {
       alert("Event Start Date can not  be greater than event end date");
       return false;
     }
-    ```
+```
 
     - Now it will append the state `file` in variable `data` to store the image on the database. `data.append("file", file)` and store variable in `event` object with the key `image`.
 
@@ -755,19 +758,17 @@ router.post("/add", async (req, res) => {
     - Image upload :- For image uplaod `multer` is used. 
 
 ```js
+    const multer = require("multer");
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, "public/images");
+      },
+      filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+      },
+    });
+    const upload = multer({ storage: storage }).single("file");
 
-const multer = require("multer");
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/images");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage }).single("file");
 ```
 
     - uplaod function will used to store image in the backend.
@@ -775,17 +776,17 @@ const upload = multer({ storage: storage }).single("file");
     - route `event/addImage`
      
 ```js
-router.post("/addImage", async (req, res) => {
-  upload(req, res, (err) => {
-    if (err) {
-      res.sendStatus(500);
-    }
-    res.send(req.file);
-    console.log(req.file);
-    imgName = req.file.filename;
-    console.log(imgName);
-  });
-});
+    router.post("/addImage", async (req, res) => {
+      upload(req, res, (err) => {
+        if (err) {
+          res.sendStatus(500);
+        }
+        res.send(req.file);
+        console.log(req.file);
+        imgName = req.file.filename;
+        console.log(imgName);
+      });
+    });
 ```
     - Here image name is stored in `imgName` which is used to store in the databse. When this route send response our frontend will request to new api `http://localhost:3001/event/add` to add the event.
 
@@ -806,40 +807,40 @@ router.post("/addImage", async (req, res) => {
     - Here it send the request to api which will go to route `/event/add`.
 
 ```js
-router.post("/add", async (req, res) => {
-  let subCategory = req.body.subCategoryId;
-  try {
-    let event = await new Event({
-      category_id: req.body.cat_id,
-      title: req.body.title,
-      description: req.body.description,
-      image: imgName,
-      start_date: req.body.startDate,
-      end_date: req.body.endDate,
-    })
-      .save()
-      .catch((err) => {
-        console.log("Add Event Route : ", err);
-      });
-    let events = event.toJSON();
+    router.post("/add", async (req, res) => {
+      let subCategory = req.body.subCategoryId;
+      try {
+        let event = await new Event({
+          category_id: req.body.cat_id,
+          title: req.body.title,
+          description: req.body.description,
+          image: imgName,
+          start_date: req.body.startDate,
+          end_date: req.body.endDate,
+        })
+          .save()
+          .catch((err) => {
+            console.log("Add Event Route : ", err);
+          });
+        let events = event.toJSON();
 
-    // adding subcategory_id for events in subevent table
-    subCategory.forEach(async (data) => {
-      console.log(data)
-      await new SubEvent({
-        subcategory_id: data,
-        event_id: events.id,
-      })
-        .save()
-        .catch((err) => {
-          console.log("Adding subevent : ", err);
+        // adding subcategory_id for events in subevent table
+        subCategory.forEach(async (data) => {
+          console.log(data)
+          await new SubEvent({
+            subcategory_id: data,
+            event_id: events.id,
+          })
+            .save()
+            .catch((err) => {
+              console.log("Adding subevent : ", err);
+            });
         });
+        res.send("Event has been added");
+      } catch (err) {
+        console.log(err);
+      }
     });
-    res.send("Event has been added");
-  } catch (err) {
-    console.log(err);
-  }
-});
 ```
 
     - This route first add event in the `event` table using model `Event`. Then use the `subCategoryId` array to iterate for each `subcategory_id` and store the event_id for all selected subcategories in `subevent` table with the `subcategory_id`. Now our event is added and send the response that event is added and navigate to the landing page for admin.
