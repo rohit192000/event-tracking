@@ -57,6 +57,11 @@ $ knex init
 ```
 
 - Your `knexfile.js` will be created in the current folder.
+
+<details>
+<summary>knexfile.js</summary>
+<p>
+
 ```js
 // Update with your config settings.
 
@@ -110,7 +115,8 @@ module.exports = {
 };
 
 ```
-
+</p>
+</details>
 - In this file there is configuration define for three environments :- development, staging, and production.
 
 - We will use development environment only.
@@ -507,7 +513,19 @@ router.post("/add", async (req, res) => {
 
   ### ADD Events
 
-  - This module contains an Category SelectField, SubCategory SelectField, Event (Title, Description, Image, start_date, end_date) field and Add Event Button.
+  - This module contains an Category SelectField, SubCategory SelectField, Event (Title, Description, Image, start_date, end_date) field and Add Event Button. Below is the event object in which we store the form data and send to the node.
+
+```js
+  const [event, setEvent] = useState({
+    cat_id: "",
+    subCategoryId: "",
+    title: "",
+    description: "",
+    image: "",
+    startDate: "",
+    endDate: "",
+  });
+```
 
   - This module contain components for different fields.
 
@@ -515,15 +533,316 @@ router.post("/add", async (req, res) => {
 
     - This component only deals with fetching the category data from database using node and save that data in a state so it can be used for fetching speific subcategory.
 
+    - It uses api "http://localhost:3001/category" by calling function `getCategory(setNames)` from `FetchAll.js` to fetch category data and set it to the state `const [names, setNames] = useState([])` and this state maps through the MenuItem for SelectField.
+
+    - To store category names from dropdown it uses `handleCategoryChange()` function. This function also sets the global state for event and category_id with category_id using props.
+
+    - This function also clears the subcategory field if user again select category so that new subcategory according to selected category will be shown.
+
+```js
+  // Variable for storing category names after admin selects from dropdown
+  const [categoryNameSelect, setCategoryName] = useState([]);
+
+
+  // handle category select
+  const handleCategoryChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    // console.log(value);
+    names.forEach((data) => {
+      if (value === data.name) {
+        props.setEvent({ ...props.event, cat_id: data.id });
+        props.setCatId({ ...props.catId, id: data.id });
+      }
+    });
+    setCategoryName(value);
+    props.subCatIdSet.clear();
+    props.subCategoryNameToggle.splice(0, props.subCategoryNameToggle.length);
+  };
+```
+
   - [SubCategorySelect](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/frontend/src/component/Admin/SubCategorySelect.js) component for sub-category select field.
 
-    - This component deals with fetching the data of specific sub-category according to selected category using the state in which selected category data is stored. This component uses SelectField in which mutliple data can be selected.Therefore this component stores the mutliple sub-category id's in a state as a set so on deselect data can be removed from state also and duplicate data will not stored.
+    - This component deals with fetching the data of specific sub-category according to selected category using the state in which selected category_id data is stored. This component uses SelectField in which mutliple data can be selected.Therefore this component stores the mutliple sub-category id's in a state `subCatIdSet` as a set so on deselect data can be removed from state also and duplicate data will not stored.
 
+    - This componenet uses functions `handleSubCategoryChange()`, `getSubCatId()` and `useEffect`.
+
+    - `useEffect` will fetch the subcategory data according to slected category by using state `catId` which we have set in the `CategorySelect` component. This sets the state `subCategoryNameSelect` with the fetched subcategory to display subcategory in the dropdown.
+
+```js
+  const [subCategoryNameSelect, setSubCategoryName] = useState([]);
+
+  useEffect(() => {
+    if (props.catId.id) {
+      axios
+        .post("http://localhost:3001/subcategory/specific", props.catId)
+        .then((response) => {
+          setSubCategoryName(response.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [props.catId]);
+```
+
+    - In every dropdown option for subcategory there is onClick to get the id of that selected subcategory using function `getSubCatId(row.id)`. This fuction take the id and add ito the global state `subCatIdSet` using function `props.setSubCatIdSet` and delete `id` if admin deselect that subcategory. 
+
+```js
+  const getSubCatId = (e) => {
+    console.log("Sub Category Id : ", e);
+    if (props.subCatIdSet.size === 0) {
+      props.setSubCatIdSet((prevState) => new Set(prevState).add(e));
+      // console.log(typeof subCatIdSet);
+    } else if (props.subCatIdSet.has(e)) {
+      props.subCatIdSet.delete(e);
+      console.log(
+        "Deleted values in set of id's of sub categories : ",
+        props.subCatIdSet
+      );
+    } else {
+      props.setSubCatIdSet((prevState) => new Set(prevState).add(e));
+      // console.log(event)
+    }
+  };
+```
+
+    - Function `handleSubCategoryChange` sets the global state `subCategoryNameToggle` which stores the names of sub-category with the selected subcategory and used as value attribute for subcategory field to show the sub-categories selected as a strings.
+
+```js
+  const handleSubCategoryChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    props.setSubCategoryNameToggle(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+    // console.log(subCategoryNameSelect);
+  };
+```
+
+  - title and description TextFields have onChange on them to store these values in global state event.
+
+```js
+  <TextField
+    label="Event Title"
+    variant="outlined"
+    name="eventtitle"
+    onChange={(e) => setEvent({ ...event, title: e.target.value })}
+      required
+    />
+  {/*Event Description Field */}
+  <TextareaAutosize
+    placeholder="Event Description *"
+    variant="outlined"
+    name="description"
+    minRows={10}
+    onChange={(e) =>
+      setEvent({ ...event, description: e.target.value })
+    }
+    style={{
+      borderRadius: "4px",
+      padding: "16.5px 14px",
+      font: "inherit",
+      fontSize: "inherit",
+      borderColor: "#c1c2c0",
+    }}
+    required
+  />
+```
+     
   - [EventDate](https://gitlab.com/rohitsamal.mvteams/frontend/-/blob/main/frontend/src/component/Admin/EventDate.js) component for dates fields.
-    - This component has Dtae field for start and end date. It stores the start date and end date in a Event object.
+    - This component has Date field for start and end date. It stores the start date and end date in a Event object. It has two functions `handleStartDate` and `handleEndDate`.
 
+    - This two function get the selected date, set the value for date fields and store the values in global state `event` object.
 
+```js
+  const handleStartDate = (newValue) => {
+    props.setStartValue(newValue);
+    props.setEvent({
+      ...props.event,
+      startDate: newValue.$d.toISOString().slice(0, 19).replace("T", " "),
+    });
+  };
 
+  // function for handling end event date & time
+  const handleEndDate = (newValue) => {
+    props.setEndValue(newValue);
+    props.setEvent({
+      ...props.event,
+      endDate: newValue.$d.toISOString().slice(0, 19).replace("T", " "),
+    });
+  };
+```
+
+  - For images I've used `input` field with type `image` and onChange event with `saveFile` function. It will store the file data in state `file` which we used to store the image in database.
+
+  - For add the event in database there is ` Add Event` button with submit type which onClick trigger `addEvent` function. 
+
+  <details>
+  <summary>addEvent function</summary>
+  <p>
+
+    const addEvent = (e) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    if (startvalue < new Date()) {
+      alert("Please choose date greter than today's date");
+    }
+    if (startvalue > endvalue) {
+      alert("Event Start Date can not  be greater than event end date");
+      return false;
+    }
+    console.log(startvalue > endvalue);
+    data.append("file", file);
+    event.image = data;
+    // const res = Object.assign(...Array.from(subCategoryIds, v => ({[v]:''} )  ));
+    console.log(subCategoryIds);
+    // console.log(res)
+    let item = [];
+    subCategoryIds.forEach((data) => {
+      console.log(data);
+      item.push(data);
+    });
+    console.log(item);
+    event.subCategoryId = item;
+    axios
+      .post("http://localhost:3001/event/addImage", event.image)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .then(() => {
+        axios.post("http://localhost:3001/event/add", event).then((res) => {
+          console.log(res.data);
+          alert("Event has been added successfully");
+          navi('/admin')
+        });
+    });
+    };
+  </p>
+  </details>
+
+    - This function gets the value of form data and store in the `data` Variable.
+
+    - This function will check if the dates are correctly selected or not. Like event start date can't be lesser than today's date and can't be greater than event's end date.
+    ```js
+        if (startvalue < new Date()) {
+      alert("Please choose date greter than today's date");
+    }
+    if (startvalue > endvalue) {
+      alert("Event Start Date can not  be greater than event end date");
+      return false;
+    }
+    ```
+
+    - Now it will append the state `file` in variable `data` to store the image on the database. `data.append("file", file)` and store variable in `event` object with the key `image`.
+
+    - Also get the subcategory id from set `subCategoryIds` and use forEach to traverse it to store the ids in temp variable `item` and set `item` to the `event` object with `subCategoryId` key.
+
+    - Now it sends the request to node using axios on api `http://localhost:3001/event/addImage` to store image on backend and request the image name by which it is stored in the backend. By definition in backend image will stored in folder `backend/public/images`. The code for request and route definition is given below.
+```js
+    axios
+      .post("http://localhost:3001/event/addImage", event.image)
+      .then((res) => {
+        console.log(res.data);
+      }).then(() => {
+        // here we will send axios request for add the event
+      })
+``` 
+
+    - Image upload :- For image uplaod `multer` is used. 
+
+```js
+
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage }).single("file");
+```
+
+    - uplaod function will used to store image in the backend.
+
+    - route `event/addImage`
+     
+```js
+router.post("/addImage", async (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      res.sendStatus(500);
+    }
+    res.send(req.file);
+    console.log(req.file);
+    imgName = req.file.filename;
+    console.log(imgName);
+  });
+});
+```
+    - Here image name is stored in `imgName` which is used to store in the databse. When this route send response our frontend will request to new api `http://localhost:3001/event/add` to add the event.
+
+```js
+    axios
+      .post("http://localhost:3001/event/addImage", event.image)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .then(() => {
+        axios.post("http://localhost:3001/event/add", event).then((res) => {
+          console.log(res.data);
+          alert("Event has been added successfully");
+          navi('/admin')
+        });
+      });
+```
+    - Here it send the request to api which will go to route `/event/add`.
+
+```js
+router.post("/add", async (req, res) => {
+  let subCategory = req.body.subCategoryId;
+  try {
+    let event = await new Event({
+      category_id: req.body.cat_id,
+      title: req.body.title,
+      description: req.body.description,
+      image: imgName,
+      start_date: req.body.startDate,
+      end_date: req.body.endDate,
+    })
+      .save()
+      .catch((err) => {
+        console.log("Add Event Route : ", err);
+      });
+    let events = event.toJSON();
+
+    // adding subcategory_id for events in subevent table
+    subCategory.forEach(async (data) => {
+      console.log(data)
+      await new SubEvent({
+        subcategory_id: data,
+        event_id: events.id,
+      })
+        .save()
+        .catch((err) => {
+          console.log("Adding subevent : ", err);
+        });
+    });
+    res.send("Event has been added");
+  } catch (err) {
+    console.log(err);
+  }
+});
+```
+
+    - This route first add event in the `event` table using model `Event`. Then use the `subCategoryId` array to iterate for each `subcategory_id` and store the event_id for all selected subcategories in `subevent` table with the `subcategory_id`. Now our event is added and send the response that event is added and navigate to the landing page for admin.
 
 
 
