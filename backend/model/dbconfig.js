@@ -5,7 +5,7 @@ const knex = require("knex")({
     host: "localhost",
     user: "root",
     password: process.env.PASSWORD,
-    database: "events",
+    database: "event",
   },
 });
 
