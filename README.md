@@ -692,7 +692,6 @@ RELATION with user and event table (many-to-one)
       <summary>addEvent function</summary>
       <p>
 
-        ```js
             const addEvent = (e) => {
             e.preventDefault();
             const data = new FormData(e.currentTarget);
@@ -729,7 +728,6 @@ RELATION with user and event table (many-to-one)
                 });
             });
             };
-        ```
       </p>
     </details>
 
@@ -852,9 +850,173 @@ RELATION with user and event table (many-to-one)
 
     - This route first add event in the `event` table using model `Event`. Then use the `subCategoryId` array to iterate for each `subcategory_id` and store the event_id for all selected subcategories in `subevent` table with the `subcategory_id`. Now our event is added and send the response that event is added and navigate to the landing page for admin.
 
+## USER Module
+  - User will land on user module when user goes to "http://localhost:3000/".
 
+  - This module contains a stepper which has 4 steps :-
 
+    - Step 1 :- This step consists of SelectField `category` with dropdown menu of categories. User will select category from dropdown. On the basis of selected category events will shown to user in the 3rd step.
 
+      - This SelectField is a componentsnamed `SelectCategiory.js`. In this compononent `useEffect` will fetch all categories from database using function `getCategory` from `FetchAll.js`. Then the fetched categories will stortes in the menu option of SelectField.
+
+      - When user select the category, function `handleCategoryChange` will store the selected category_id on the state `catId`.
+
+      - This componenet is same as the category component in admin folder.
+
+    - Step 2 :- This step consist of SelectField `subcategory` with dropdown menu whose values are sub-categories names which are fetched on the basis of selected category on previous step using state `catId`. User will choose sub-categories and on the basis of selected sub-categories `events` will be shown to user on 3rd step.
+
+      - This SelectField is a componenet names `SelectSubCategory.js`. In this component `useEffect` will fetch sub-category data on the basis of `catId` from previous step using axios `post` request on api `http://localhost:3001/subcategory/specific`. It will set the response data which contains subcategory and their ids to state `subCategoryNameSelect` ehich will mapped for MenuItem of SelectField and store the subcategory names in the options. 
+
+      - These menu options also has onClick event with function `getSubCatId` which gets the selected subcategroy id and add to the global state set `subCatIdSet`. It is also same as the `SubCategorySelect.js` component of the admin module. For more info how it work you can check admin module documentation.
+
+    - Step 3 :- In this step user will select events by clicking on checkbox in which he want to resgisterd. User can filter events on the basis of dates. Events were shown according to the selected category, if selected sub-category then on the basis of seected sub-categories.
+
+      - This step consists of two components `SelectEvent.js` and `Filter.js`.
+
+      - `SelectEvent.js` also contains `EventCheckBox.js` component. In this component there is `useEffect` which will show events on the basis of different conditions.
+
+      - If user haven't choosen category then It will display all events using function `getEvent(callback)` which will fetch all events by sending request on api `http://localhost:3001/event`. and set the data to state event by using `setEvent` as callback function.
+
+      ```js
+        const getEvent = (callback) => {
+          axios.get("http://localhost:3001/event").then((response) => {
+          // console.log(response.data);
+          callback(response.data);
+          });
+        }
+      ```
+
+      - route `/event`
+
+      ```js
+
+          router.get("/", async (req, res, next) => {
+            try {
+              await new Event()
+                .fetchAll()
+                .then((event) => {
+                  res.send(event.toJSON());
+                })
+                .catch((err) => {
+                  console.log("Fetch all event route : ", err);
+                });
+            } catch (err) {
+              console.log(err);
+            }
+          });
+
+      ```
+
+      - If user selected category then events will be shown according to the selected category. In useEffect there is condition to check if catId is present or not. If present it will check if user is selected subcategory or not. If user haven't it will send api request to `http://localhost:3001/event/category` which will fetch events according to the selected category.
+
+      ```js
+        axios
+          .post("http://localhost:3001/event/category", props.catId)
+          .then((response) => {
+            console.log(response.data);
+            setEvents(response.data);
+          });
+      ```
+
+      - route `/event/category`
+
+      ```js
+          router.all("/category", async (req, res) => {
+            try {
+              await Event.where({ category_id: req.body.id })
+                .fetchAll({
+                  withRelated: ["category"],
+                })
+                .then((categories) => {
+                  res.send(JSON.stringify(categories));
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            } catch (err) {
+              console.log(err);
+            }
+          });
+      ```
+
+      - If users has selected sub-categories then it will send api request to `http://localhost:3001/subevent/event` which will fetch events related to sub-categories by using `subevent` table in which we have stored `event_id` with their `subcategory_id`. Also here is condition if same events are present for multiple sub-category then event will fetch once. 
+
+      ```js
+        axios
+          .post("http://localhost:3001/subevent/event", {
+            subcatid: item,
+          })
+          .then((response) => {
+            console.log(response.data);
+            let events = [];
+            response.data.forEach((data) => {
+              events.push(data);
+            });
+            console.log(events);
+            setEvents(events);
+          });
+      ```
+
+      - route `subevent/event`
+
+      ```js
+        router.post("/event", async (req, res, next) => {
+          try {
+            await SubEvent
+              .where("subcategory_id", "in", req.body.subcatid)
+              .fetchAll({ columns: ["event_id"] })
+              .then(async (event) => {
+                let subevent = new Set([]);
+                event.toJSON().map((a) => {
+                  return subevent.add(a.event_id);
+                });
+                let events = Array.from(subevent)
+                console.log(events)
+                await Event.where("id",'IN', events).fetchAll().then((data) =>{
+                  res.send(data.toJSON())
+                  console.log(data.toJSON());
+                });
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          } catch (err) {
+            console.log(err);
+          }
+        });
+      ```
+
+      - In this step there is `EventCheckBox.js` component which is added on every image. When user will select the event then this component has function `handleChecked` which changes the value of state `checked` type `bool` which is a dependency of `useEffect`.
+        ```js
+
+          const [checked, setChecked] = useState(false);
+
+          const handleChecked = (e) => {
+            console.log(eventid);
+            setChecked(prevState => e.target.checked);
+          }
+        ```
+
+      - This useEffect on every render check if the value of state `checked` is true then add the selected event id in state `eventId` of type set and delete `eventId` on deselect the event.
+
+      ```js
+        useEffect(() => {
+          console.log(checked);
+          if(checked){
+            console.log("Event added ", eventid);
+            props.setEventId(prevState => new Set(prevState).add(eventid));
+          }else{
+            props.eventId.delete(eventid);
+            console.log(props.eventId)
+            console.log("Event remeoved", eventid)
+          }
+        }, [checked, eventid])
+      ```
+
+      - After selecting event user will move to the next step where user will add its details.
+
+    
+    - Step 4 :-
 
 
 
