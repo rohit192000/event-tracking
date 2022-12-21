@@ -1016,7 +1016,84 @@ RELATION with user and event table (many-to-one)
       - After selecting event user will move to the next step where user will add its details.
 
     
-    - Step 4 :-
+    - Step 4 :- In this step user will fill its details (name, email, contact) and finish the form.
+
+    - After finish the form `handleNext` function on `Form.js` will add the user details in the database using axios request on api `http://localhost:3001/users/add` and after getting response as a `user_id` from the api it will add the `user_id` and selected events by the user in the `userevents` table by sending axios request on api `http://localhost:3001/userevent/add`. In the data we will send `user_id` and array of selected `event_id` which will add in the `userevents` table. 
+
+      - axios request :- 
+        ```js
+          axios
+          .post("http://localhost:3001/users/add", {
+            name: user.name,
+            email: user.email,
+            contact: user.contact,
+          })
+          .then((response) => {
+            console.log(response.data);
+            axios
+              .post("http://localhost:3001/userevent/add", {
+                event_id: user.event_ids,
+                user_id: response.data.id,
+              })
+              .then((response) => {
+                alert("You have been registered for events")
+                console.log(response.data);
+              });
+          })
+          .catch((err) => {
+            alert("already registered user");
+          });
+        ```
+
+      - routes definition `/users/add` and `/userevent/add`.
+
+        ```js
+          router.post("/add", async (req, res, next) => {
+            try {
+              await new Users(req.body)
+                .save()
+                .then((data) => {
+                  res.send(JSON.stringify(data));
+                })
+                .catch((err) => {
+                  console.log(err);
+                  res.status("500").send("Duplicate Entry");
+                });
+            } catch (err) {
+              console.log(err);
+            }
+          });
+        ```
+
+        ```js
+          router.post("/add", async (req, res) => {
+            try {
+              req.body.event_id.forEach(async (data) => {
+                await new UserEvents({
+                  event_id: data,
+                  user_id: req.body.user_id,
+                })
+                  .save()
+                  .then((response) => {
+                    res.send(JSON.stringify(response));
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              });
+            } catch (err) {
+              console.log(err);
+            }
+          });
+        ``` 
+
+    - After this it will show `registered` alert and the `reset` button to reset the form.
+
+    - On clicking reset it will reset all the states in the application and navigate to the landing page.    
+
+          
+
+
 
 
 
